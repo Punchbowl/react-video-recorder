@@ -40,7 +40,6 @@ class Timer extends Component {
   constructor (props) {
     super(props)
 
-    // const nextSeconds = props.timeLimit ? props.timeLimit / 1000 : 0
     const nextSeconds = 0
 
     this.state = this.getState(nextSeconds)
@@ -54,7 +53,6 @@ class Timer extends Component {
     const { onTick } = this.props
     this.timer = setInterval(() => {
       const { seconds } = this.state
-      // const nextSeconds = timeLimit ? seconds - 1 : seconds + 1
       const nextSeconds = seconds + 1
 
       const nextState = this.getState(nextSeconds)
@@ -90,7 +88,6 @@ class Timer extends Component {
   }
 
   render () {
-    console.log('Timer render: ', this.state.seconds, this.state.human)
     const defaultText = this.props.defaultText || '0:00'
     return (
       <RecTimer>

@@ -1,4 +1,4 @@
-import React, { PureComponent, useState } from 'react'
+import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Button from './button'
@@ -18,12 +18,15 @@ const ActionsWrapper = styled.div`
   padding-bottom: 80px;
 `
 
-const onTick = state => {
-  console.log('onTick: ')
-  console.table(state)
-}
-
 class Actions extends PureComponent {
+  state = {
+    elapsedSeconds: 0
+  }
+
+  handleTick = state => {
+    this.setState(state)
+  }
+
   renderContent () {
     const {
       isVideoInputSupported,
@@ -70,30 +73,20 @@ class Actions extends PureComponent {
       )
     }
 
-    console.group('renderActions')
-    console.log('---------------- isRecording: ', isRecording)
-    console.log('---------------- timeLimit ', timeLimit)
-    console.log('---------------- countdownTime ', countdownTime)
-    console.groupEnd()
+    const { elapsedSeconds } = this.state
+    const maxSeconds = Math.floor(timeLimit / 1000)
+    const maxReadySeconds = Math.floor(countdownTime / 1000)
 
-    if (isRecording) {
+    if (isRecording || (isCameraOn && streamIsReady)) {
       return (
         <PrimaryButtonComponent
-          onClick={onStopRecording}
-          maxSeconds={timeLimit}
+          onClick={isRecording ? onStopRecording : onStartRecording}
+          maxSeconds={maxSeconds}
           status={isRecording ? 'recording' : ''}
-          data-qa='stop-recording'
-        />
-      )
-    }
-
-    if (isCameraOn && streamIsReady) {
-      return (
-        <PrimaryButtonComponent
-          status={isRecording ? 'recording' : ''}
-          maxSeconds={timeLimit}
-          onClick={onStartRecording}
-          data-qa='start-recording'
+          data-qa={isRecording ? 'stop-recording' : 'start-recording'}
+          elapsedSeconds={elapsedSeconds}
+          readySeconds={0}
+          maxReadySeconds={maxReadySeconds}
         />
       )
     }
@@ -127,7 +120,9 @@ class Actions extends PureComponent {
 
     return (
       <>
-        {isRecording && <Timer onTick={onTick} timeLimit={timeLimit} />}
+        {isRecording && (
+          <Timer onTick={this.handleTick} timeLimit={timeLimit} />
+        )}
         {isRunningCountdown && <Countdown countdownTime={countdownTime} />}
         <ActionsWrapper>{this.renderContent()}</ActionsWrapper>
       </>
@@ -146,18 +141,13 @@ Actions.propTypes = {
   isRunningCountdown: PropTypes.bool,
   countdownTime: PropTypes.number,
   timeLimit: PropTypes.number,
-  showReplayControls: PropTypes.bool,
-  replayVideoAutoplayAndLoopOff: PropTypes.bool,
   isReplayingVideo: PropTypes.bool,
   useVideoInput: PropTypes.bool,
 
   onTurnOnCamera: PropTypes.func,
-  onTurnOffCamera: PropTypes.func,
   onOpenVideoInput: PropTypes.func,
   onStartRecording: PropTypes.func,
   onStopRecording: PropTypes.func,
-  onPauseRecording: PropTypes.func,
-  onResumeRecording: PropTypes.func,
   onStopReplaying: PropTypes.func,
   onConfirm: PropTypes.func,
 
