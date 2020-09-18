@@ -6,5 +6,8 @@ module.exports = {
       version: '16.8'
     }
   },
-  plugins: ['jest']
+  plugins: ['jest'],
+  rules: {
+    'react/jsx-handler-names': 0
+  }
 }

@@ -1,12 +1,12 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
-
+import PrimaryButton from './defaults/PrimaryButton'
 import UnsupportedView from './defaults/unsupported-view'
 import ErrorView from './defaults/error-view'
 import DisconnectedView from './defaults/disconnected-view'
 import LoadingView from './defaults/loading-view'
-import renderActions from './defaults/render-actions'
+import Actions from './defaults/render-actions'
 import getVideoInfo, { captureThumb } from './get-video-info'
 import {
   ReactVideoRecorderDataIssueError,
@@ -71,7 +71,7 @@ const Video = styled.video`
     `};
 `
 
-export default class VideoRecorder extends Component {
+export default class VideoRecorder extends PureComponent {
   static propTypes = {
     /** Whether or not to start the camera initially */
     isOnInitially: PropTypes.bool,
@@ -101,7 +101,7 @@ export default class VideoRecorder extends Component {
     renderVideoInputView: PropTypes.func,
     renderUnsupportedView: PropTypes.func,
     renderErrorView: PropTypes.func,
-    renderActions: PropTypes.func,
+    Actions: PropTypes.elementType,
 
     onCameraOn: PropTypes.func,
     onTurnOnCamera: PropTypes.func,
@@ -113,7 +113,9 @@ export default class VideoRecorder extends Component {
     onRecordingComplete: PropTypes.func,
     onOpenVideoInput: PropTypes.func,
     onStopReplaying: PropTypes.func,
-    onError: PropTypes.func
+    onError: PropTypes.func,
+
+    PrimaryButtonComponent: PropTypes.elementType
   }
 
   static defaultProps = {
@@ -122,12 +124,13 @@ export default class VideoRecorder extends Component {
     renderVideoInputView: ({ videoInput }) => <>{videoInput}</>,
     renderDisconnectedView: () => <DisconnectedView />,
     renderLoadingView: () => <LoadingView />,
-    renderActions,
+    Actions,
     isFlipped: true,
     countdownTime: 3000,
     constraints: CONSTRAINTS,
     chunkSize: 250,
-    dataAvailableTimeout: 500
+    dataAvailableTimeout: 500,
+    PrimaryButtonComponent: PrimaryButton
   }
 
   videoInput = React.createRef()
@@ -715,39 +718,42 @@ export default class VideoRecorder extends Component {
       timeLimit,
       showReplayControls,
       replayVideoAutoplayAndLoopOff,
-      renderActions,
-      useVideoInput
+      Actions,
+      useVideoInput,
+      PrimaryButtonComponent
     } = this.props
 
     return (
       <Wrapper>
         {this.renderCameraView()}
-        {renderActions({
-          isVideoInputSupported,
-          isInlineRecordingSupported,
-          thereWasAnError,
-          isRecording,
-          isCameraOn,
-          streamIsReady,
-          isConnecting,
-          isRunningCountdown,
-          isReplayingVideo,
-          isReplayVideoMuted,
-          countdownTime,
-          timeLimit,
-          showReplayControls,
-          replayVideoAutoplayAndLoopOff,
-          useVideoInput,
-
-          onTurnOnCamera: this.turnOnCamera,
-          onTurnOffCamera: this.turnOffCamera,
-          onOpenVideoInput: this.handleOpenVideoInput,
-          onStartRecording: this.handleStartRecording,
-          onStopRecording: this.handleStopRecording,
-          onPauseRecording: this.handlePauseRecording,
-          onResumeRecording: this.handleResumeRecording,
-          onStopReplaying: this.handleStopReplaying
-        })}
+        {
+          <Actions
+            isVideoInputSupported={isVideoInputSupported}
+            isInlineRecordingSupported={isInlineRecordingSupported}
+            thereWasAnError={thereWasAnError}
+            isRecording={isRecording}
+            isCameraOn={isCameraOn}
+            streamIsReady={streamIsReady}
+            isConnecting={isConnecting}
+            isRunningCountdown={isRunningCountdown}
+            isReplayingVideo={isReplayingVideo}
+            isReplayVideoMuted={isReplayVideoMuted}
+            countdownTime={countdownTime}
+            timeLimit={timeLimit}
+            showReplayControls={showReplayControls}
+            replayVideoAutoplayAndLoopOff={replayVideoAutoplayAndLoopOff}
+            useVideoInput={useVideoInput}
+            PrimaryButtonComponent={PrimaryButtonComponent}
+            onTurnOnCamera={this.turnOnCamera}
+            onTurnOffCamera={this.turnOffCamera}
+            onOpenVideoInput={this.handleOpenVideoInput}
+            onStartRecording={this.handleStartRecording}
+            onStopRecording={this.handleStopRecording}
+            onPauseRecording={this.handlePauseRecording}
+            onResumeRecording={this.handleResumeRecording}
+            onStopReplaying={this.handleStopReplaying}
+          />
+        }
       </Wrapper>
     )
   }

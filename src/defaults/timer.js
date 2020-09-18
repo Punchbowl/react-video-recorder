@@ -2,15 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-const Text = styled.div`
-  position: absolute;
-  top: -33px;
-  right: 100px;
-  font-family: Menlo, monospace;
-  font-size: 28px;
-  text-shadow: 1px 2px rgba(0, 0, 0, 0.5);
-`
-
 const RecIcon = styled.div`
   width: 16px;
   height: 16px;
@@ -21,16 +12,35 @@ const RecIcon = styled.div`
   margin-left: 0;
 `
 
+const RecTimer = styled.div`
+  grid-area: 1 / 1;
+  z-index: 2;
+  display: flex;
+  border-radius: 15px;
+  place-items: center;
+  color: #ffffff;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #000;
+  padding: 3px 8px;
+`
+
+const RecTimerCount = styled.div`
+  grid-area: 1 / 1;
+`
+
 class Timer extends Component {
   static propTypes = {
     timeLimit: PropTypes.number,
-    defaultText: PropTypes.string
+    defaultText: PropTypes.string,
+    onTick: PropTypes.func
   }
 
   constructor (props) {
     super(props)
 
-    const nextSeconds = props.timeLimit ? props.timeLimit / 1000 : 0
+    const nextSeconds = 0
 
     this.state = this.getState(nextSeconds)
   }
@@ -40,13 +50,15 @@ class Timer extends Component {
   }
 
   componentDidMount () {
-    const { timeLimit } = this.props
+    const { onTick } = this.props
     this.timer = setInterval(() => {
       const { seconds } = this.state
-      const nextSeconds = timeLimit ? seconds - 1 : seconds + 1
+      const nextSeconds = seconds + 1
 
       const nextState = this.getState(nextSeconds)
-      this.setState(nextState)
+      this.setState(nextState, () => {
+        onTick(nextState)
+      })
     }, 1000)
   }
 
@@ -57,15 +69,20 @@ class Timer extends Component {
   }
 
   getState (seconds) {
-    const minutes = Math.floor(seconds / 60)
+    const elapsedSeconds = seconds
+    const { timeLimit } = this.props
+    const remainingSeconds = timeLimit / 1000 - seconds
+    const minutes = Math.floor(remainingSeconds / 60)
 
     const humanTime =
       minutes !== 0
-        ? `${minutes}:${this.pad(seconds - minutes * 60)}`
-        : `${seconds - minutes * 60}s`
+        ? `${minutes}:${this.pad(remainingSeconds - minutes * 60)}`
+        : `${remainingSeconds - minutes * 60}s`
 
     return {
-      seconds: seconds,
+      seconds,
+      remainingSeconds,
+      elapsedSeconds,
       human: humanTime
     }
   }
@@ -73,10 +90,10 @@ class Timer extends Component {
   render () {
     const defaultText = this.props.defaultText || '0:00'
     return (
-      <Text {...this.props}>
+      <RecTimer>
         <RecIcon />
-        {this.state.human || defaultText}
-      </Text>
+        <RecTimerCount>{this.state.human || defaultText}</RecTimerCount>
+      </RecTimer>
     )
   }
 }

@@ -1,10 +1,8 @@
-import React from 'react'
+import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Button from './button'
 import { RetakeButton, SaveButton } from './ActionButtons'
-import RecordButton from './PrimaryButton'
-import StopButton from './stop-button'
 import Timer from './timer'
 import Countdown from './countdown'
 
@@ -20,33 +18,39 @@ const ActionsWrapper = styled.div`
   padding-bottom: 80px;
 `
 
-const Actions = ({
-  isVideoInputSupported,
-  isInlineRecordingSupported,
-  thereWasAnError,
-  isRecording,
-  isCameraOn,
-  streamIsReady,
-  isConnecting,
-  isRunningCountdown,
-  isReplayingVideo,
-  countdownTime,
-  timeLimit,
-  showReplayControls,
-  replayVideoAutoplayAndLoopOff,
-  useVideoInput,
+class Actions extends PureComponent {
+  state = {
+    elapsedSeconds: 0
+  }
 
-  onTurnOnCamera,
-  onTurnOffCamera,
-  onOpenVideoInput,
-  onStartRecording,
-  onStopRecording,
-  onPauseRecording,
-  onResumeRecording,
-  onStopReplaying,
-  onConfirm
-}) => {
-  const renderContent = () => {
+  handleTick = state => {
+    this.setState(state)
+  }
+
+  renderContent () {
+    const {
+      isVideoInputSupported,
+      isInlineRecordingSupported,
+      thereWasAnError,
+      isRecording,
+      isCameraOn,
+      streamIsReady,
+      isConnecting,
+      isRunningCountdown,
+      isReplayingVideo,
+      countdownTime,
+      timeLimit,
+      useVideoInput,
+
+      onTurnOnCamera,
+      onOpenVideoInput,
+      onStartRecording,
+      onStopRecording,
+      onStopReplaying,
+      onConfirm,
+      PrimaryButtonComponent
+    } = this.props
+
     const shouldUseVideoInput =
       !isInlineRecordingSupported && isVideoInputSupported
 
@@ -69,13 +73,21 @@ const Actions = ({
       )
     }
 
-    if (isRecording) {
-      return <StopButton onClick={onStopRecording} data-qa='stop-recording' />
-    }
+    const { elapsedSeconds } = this.state
+    const maxSeconds = Math.floor(timeLimit / 1000)
+    const maxReadySeconds = Math.floor(countdownTime / 1000)
 
-    if (isCameraOn && streamIsReady) {
+    if (isRecording || (isCameraOn && streamIsReady)) {
       return (
-        <RecordButton onClick={onStartRecording} data-qa='start-recording' />
+        <PrimaryButtonComponent
+          onClick={isRecording ? onStopRecording : onStartRecording}
+          maxSeconds={maxSeconds}
+          status={isRecording ? 'recording' : ''}
+          data-qa={isRecording ? 'stop-recording' : 'start-recording'}
+          elapsedSeconds={elapsedSeconds}
+          readySeconds={0}
+          maxReadySeconds={maxReadySeconds}
+        />
       )
     }
 
@@ -98,13 +110,24 @@ const Actions = ({
     )
   }
 
-  return (
-    <div>
-      {isRecording && <Timer timeLimit={timeLimit} />}
-      {isRunningCountdown && <Countdown countdownTime={countdownTime} />}
-      <ActionsWrapper>{renderContent()}</ActionsWrapper>
-    </div>
-  )
+  render () {
+    const {
+      isRecording,
+      isRunningCountdown,
+      countdownTime,
+      timeLimit
+    } = this.props
+
+    return (
+      <>
+        {isRecording && (
+          <Timer onTick={this.handleTick} timeLimit={timeLimit} />
+        )}
+        {isRunningCountdown && <Countdown countdownTime={countdownTime} />}
+        <ActionsWrapper>{this.renderContent()}</ActionsWrapper>
+      </>
+    )
+  }
 }
 
 Actions.propTypes = {
@@ -118,20 +141,17 @@ Actions.propTypes = {
   isRunningCountdown: PropTypes.bool,
   countdownTime: PropTypes.number,
   timeLimit: PropTypes.number,
-  showReplayControls: PropTypes.bool,
-  replayVideoAutoplayAndLoopOff: PropTypes.bool,
   isReplayingVideo: PropTypes.bool,
   useVideoInput: PropTypes.bool,
 
   onTurnOnCamera: PropTypes.func,
-  onTurnOffCamera: PropTypes.func,
   onOpenVideoInput: PropTypes.func,
   onStartRecording: PropTypes.func,
   onStopRecording: PropTypes.func,
-  onPauseRecording: PropTypes.func,
-  onResumeRecording: PropTypes.func,
   onStopReplaying: PropTypes.func,
-  onConfirm: PropTypes.func
+  onConfirm: PropTypes.func,
+
+  PrimaryButtonComponent: PropTypes.elementType
 }
 
 export default Actions
