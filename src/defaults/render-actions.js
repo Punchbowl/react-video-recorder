@@ -36,7 +36,6 @@ class Actions extends PureComponent {
       isCameraOn,
       streamIsReady,
       isConnecting,
-      isRunningCountdown,
       isReplayingVideo,
       countdownTime,
       timeLimit,
@@ -57,8 +56,7 @@ class Actions extends PureComponent {
     if (
       (!isInlineRecordingSupported && !isVideoInputSupported) ||
       thereWasAnError ||
-      isConnecting ||
-      isRunningCountdown
+      isConnecting
     ) {
       return null
     }

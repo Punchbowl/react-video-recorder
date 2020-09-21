@@ -116,6 +116,7 @@ export default class VideoRecorder extends PureComponent {
     onError: PropTypes.func,
 
     PrimaryButtonComponent: PropTypes.elementType
+    // TrackBarComponent: PropTypes.elementType
   }
 
   static defaultProps = {
@@ -726,34 +727,46 @@ export default class VideoRecorder extends PureComponent {
     return (
       <Wrapper>
         {this.renderCameraView()}
-        {
-          <Actions
-            isVideoInputSupported={isVideoInputSupported}
-            isInlineRecordingSupported={isInlineRecordingSupported}
-            thereWasAnError={thereWasAnError}
-            isRecording={isRecording}
-            isCameraOn={isCameraOn}
-            streamIsReady={streamIsReady}
-            isConnecting={isConnecting}
-            isRunningCountdown={isRunningCountdown}
-            isReplayingVideo={isReplayingVideo}
-            isReplayVideoMuted={isReplayVideoMuted}
-            countdownTime={countdownTime}
-            timeLimit={timeLimit}
-            showReplayControls={showReplayControls}
-            replayVideoAutoplayAndLoopOff={replayVideoAutoplayAndLoopOff}
-            useVideoInput={useVideoInput}
-            PrimaryButtonComponent={PrimaryButtonComponent}
-            onTurnOnCamera={this.turnOnCamera}
-            onTurnOffCamera={this.turnOffCamera}
-            onOpenVideoInput={this.handleOpenVideoInput}
-            onStartRecording={this.handleStartRecording}
-            onStopRecording={this.handleStopRecording}
-            onPauseRecording={this.handlePauseRecording}
-            onResumeRecording={this.handleResumeRecording}
-            onStopReplaying={this.handleStopReplaying}
+        <div className='video-progress'>
+          <progress id='progress-bar' value='0' min='0' />
+          <input
+            className='seek'
+            id='seek'
+            value='0'
+            min='0'
+            type='range'
+            step='1'
           />
-        }
+          <div className='seek-tooltip' id='seek-tooltip'>
+            00:00
+          </div>
+        </div>
+        <Actions
+          isVideoInputSupported={isVideoInputSupported}
+          isInlineRecordingSupported={isInlineRecordingSupported}
+          thereWasAnError={thereWasAnError}
+          isRecording={isRecording}
+          isCameraOn={isCameraOn}
+          streamIsReady={streamIsReady}
+          isConnecting={isConnecting}
+          isRunningCountdown={isRunningCountdown}
+          isReplayingVideo={isReplayingVideo}
+          isReplayVideoMuted={isReplayVideoMuted}
+          countdownTime={countdownTime}
+          timeLimit={timeLimit}
+          showReplayControls={showReplayControls}
+          replayVideoAutoplayAndLoopOff={replayVideoAutoplayAndLoopOff}
+          useVideoInput={useVideoInput}
+          PrimaryButtonComponent={PrimaryButtonComponent}
+          onTurnOnCamera={this.turnOnCamera}
+          onTurnOffCamera={this.turnOffCamera}
+          onOpenVideoInput={this.handleOpenVideoInput}
+          onStartRecording={this.handleStartRecording}
+          onStopRecording={this.handleStopRecording}
+          onPauseRecording={this.handlePauseRecording}
+          onResumeRecording={this.handleResumeRecording}
+          onStopReplaying={this.handleStopReplaying}
+        />
       </Wrapper>
     )
   }
